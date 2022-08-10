@@ -49,7 +49,12 @@
       />
     </div>
 
-    <modal-characters v-if="this.activeModal == true"> </modal-characters>
+    <modal-characters
+      @_hacerBusqueda="hacerBusqueda"
+      @_closeModal="closeModal"
+      v-if="activeModal"
+    >
+    </modal-characters>
   </div>
 </template>
 
@@ -64,18 +69,46 @@ export default {
       status: { Alive: "success", Dead: "danger", unknown: "warning" },
       value: 11,
       cantidadPaginas: 1,
+      filtros: {
+        name: "",
+        status: "",
+        species: "",
+        type: "",
+        gender: "",
+      },
     };
   },
   methods: {
     getData() {
-      this.axios.get(this.url).then((response) => {
-        console.log(response.data);
+      const parametros = new URLSearchParams();
+      parametros.append("name", this.filtros.name);
+      parametros.append("status", this.filtros.status);
+      parametros.append("species", this.filtros.species);
+      parametros.append("type", this.filtros.type);
+      parametros.append("gender", this.filtros.gender);
+      this.axios({
+        method: "get",
+        url: this.url,
+        params: parametros,
+      }).then((response) => {
         this.personajes = response.data.results;
         this.cantidadPaginas = response.data.info.count;
       });
     },
     openModal() {
       this.activeModal = true;
+    },
+    closeModal(data) {
+      this.activeModal = data;
+    },
+    hacerBusqueda(data) {
+      this.activeModal = false;
+      this.filtros.name = data[0];
+      this.filtros.status = data[1];
+      this.filtros.species = data[2];
+      this.filtros.type = data[3];
+      this.filtros.gender = data[4];
+      this.getData();
     },
   },
   mounted() {
