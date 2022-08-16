@@ -19,6 +19,7 @@
         :stripe-color="status[`${personaje.status}`]"
         v-for="(personaje, index) in personajes"
         :key="index"
+        @click="abrirModalPersonaje(personaje)"
       >
         <va-image class="img" :src="personaje.image" />
 
@@ -41,11 +42,12 @@
       <va-pagination
         class="paginator"
         :visible-pages="10"
-        v-model="value"
+        v-model="page"
         :total="cantidadPaginas"
         boundary-numbers
         :page-size="20"
         color="#505050"
+        @click="getData()"
       />
     </div>
 
@@ -55,6 +57,29 @@
       v-if="activeModal"
     >
     </modal-characters>
+    <va-modal v-model="verPersonaje" no-padding>
+      <template #content="{ ok }">
+        <va-image :ratio="1.4" :src="dataModalPersonaje.image" />
+        <va-card-title class="titulo-modal-personaje">
+          <va-badge dot :color="status[`${dataModalPersonaje.status}`]">
+            {{ dataModalPersonaje.name }}
+          </va-badge>
+        </va-card-title>
+        <va-card-content>
+          <h3>
+            {{ dataModalPersonaje.species }} / {{ dataModalPersonaje.gender }}
+          </h3>
+          <br />
+          <h2>Episodes: ( {{ episodiosPersonaje.length }})</h2>
+          <ul v-for="(episodio, i) in episodiosPersonaje" :key="i">
+            <li>{{ episodio.name }} - {{ episodio.episode }}.</li>
+          </ul>
+        </va-card-content>
+        <va-card-actions>
+          <va-button @click="ok" color="#9CCF2F">Ok</va-button>
+        </va-card-actions>
+      </template>
+    </va-modal>
   </div>
 </template>
 
@@ -64,11 +89,14 @@ export default {
   data() {
     return {
       activeModal: false,
+      verPersonaje: false,
       url: "https://rickandmortyapi.com/api/character",
       personajes: [],
       status: { Alive: "success", Dead: "danger", unknown: "warning" },
-      value: 11,
+      page: 1,
+      episodiosPersonaje: [],
       cantidadPaginas: 1,
+      dataModalPersonaje: {},
       filtros: {
         name: "",
         status: "",
@@ -79,6 +107,17 @@ export default {
     };
   },
   methods: {
+    getEpisodio(episodios) {
+      this.episodiosPersonaje = [];
+      for (const episodio of episodios) {
+        this.axios({
+          method: "get",
+          url: `${episodio}`,
+        }).then((response) => {
+          this.episodiosPersonaje.push(response.data);
+        });
+      }
+    },
     getData() {
       const parametros = new URLSearchParams();
       parametros.append("name", this.filtros.name);
@@ -86,6 +125,7 @@ export default {
       parametros.append("species", this.filtros.species);
       parametros.append("type", this.filtros.type);
       parametros.append("gender", this.filtros.gender);
+      parametros.append("page", 1 + Math.round(this.page / 20));
       this.axios({
         method: "get",
         url: this.url,
@@ -98,6 +138,7 @@ export default {
     openModal() {
       this.activeModal = true;
     },
+
     closeModal(data) {
       this.activeModal = data;
     },
@@ -109,6 +150,16 @@ export default {
       this.filtros.type = data[3];
       this.filtros.gender = data[4];
       this.getData();
+    },
+    abrirModalPersonaje(personaje) {
+      this.verPersonaje = true;
+      this.getEpisodio(personaje.episode);
+      this.dataModalPersonaje[`name`] = personaje.name;
+      this.dataModalPersonaje[`species`] = personaje.species;
+      this.dataModalPersonaje[`image`] = personaje.image;
+      this.dataModalPersonaje[`status`] = personaje.status;
+      this.dataModalPersonaje[`type`] = personaje.type;
+      this.dataModalPersonaje[`gender`] = personaje.gender;
     },
   },
   mounted() {
@@ -134,7 +185,7 @@ h1 {
 }
 .card:hover {
   box-shadow: 3px 3px 18px 4px rgb(87, 87, 87);
-  cursor: context-menu;
+  cursor: pointer;
 }
 
 .card .img {
@@ -142,17 +193,31 @@ h1 {
   width: 100%;
   height: 200px;
 }
+
+ul {
+  display: block;
+  list-style-type: disc;
+  margin-top: 1em;
+  margin-bottom: 1 em;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 40px;
+  margin-left: 30px;
+  margin-right: 60px;
+}
 .contenedor {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
 }
+
 .titulo {
   color: #363636;
   font-size: 1.7rem;
   margin: 15px;
 }
-.titulo-card {
+.titulo-card,
+.titulo-modal-personaje {
   font-size: 1.2rem;
 }
 .head-title {

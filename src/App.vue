@@ -10,7 +10,10 @@
       </template>
       <template #right>
         <va-navbar-item
-          ><router-link class="item" to="/"
+          ><router-link class="item" to="/">Home</router-link></va-navbar-item
+        >
+        <va-navbar-item
+          ><router-link class="item" to="/characters"
             >Characters</router-link
           ></va-navbar-item
         >
@@ -42,7 +45,7 @@
 .item {
   color: white;
   text-decoration: none;
-  font-size: large;
+  font-size: medium;
   padding: 10px 15px;
 }
 .item:focus {

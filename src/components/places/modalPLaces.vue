@@ -3,7 +3,7 @@
     <div class="mascara-modal">
       <div class="envoltura-modal">
         <div class="tarjeta-modal">
-          <h1 class="titulo-modal">Characters Filter</h1>
+          <h1 class="titulo-modal">Places Filter</h1>
           <va-form
             class="form-modal"
             tag="form"
@@ -11,25 +11,9 @@
           >
             <va-input class="mt-3" label="Name" v-model="nameForm" />
 
-            <va-select
-              class="mt-3"
-              label="Status"
-              v-model="statusForm"
-              :options="optionsStatus"
-              clearable
-            />
-
-            <va-input class="mt-3" label="Species" v-model="speciesForm" />
-
             <va-input class="mt-3" label="Type" v-model="typeForm" />
 
-            <va-select
-              class="mt-3"
-              label="Gender"
-              v-model="genderForm"
-              :options="optionsGender"
-              clearable
-            />
+            <va-input class="mt-3" label="Dimension" v-model="dimensionForm" />
 
             <va-button type="submit" class="mt-3"> Search </va-button>
           </va-form>
@@ -45,22 +29,16 @@ export default {
   data() {
     return {
       nameForm: "",
-      statusForm: "",
-      optionsStatus: ["alive", "dead", "unknown"],
-      speciesForm: "",
       typeForm: "",
-      genderForm: "",
-      optionsGender: ["female", "male", "genderless", "unknown"],
+      dimensionForm: "",
     };
   },
   methods: {
     hacerBusqueda() {
       this.$emit("_hacerBusqueda", [
         this.nameForm,
-        this.statusForm,
-        this.speciesForm,
         this.typeForm,
-        this.genderForm,
+        this.dimensionForm,
       ]);
     },
     closeModal() {
@@ -91,8 +69,7 @@ export default {
   z-index: 150;
 }
 .tarjeta-modal {
-  min-width: 50%;
-  max-width: 90%;
+  width: 50%;
   padding: 15px;
   background-color: rgb(207, 215, 219);
   border-radius: 10px;
@@ -112,7 +89,7 @@ export default {
   color: rgb(46, 46, 46);
 }
 .form-modal {
-  width: 75%;
+  width: 50%;
   margin: 20px auto;
 }
 </style>
